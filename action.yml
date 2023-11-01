@@ -56,6 +56,14 @@ inputs:
     description: "Enable differential scanning. Only supported for pull request events"
     required: false
     default: "false"
+  quiet:
+    description: "Suppress non-essential messages"
+    required: false
+    default: ""
+  hide-progress-bar:
+    description: "Hide progress bar from output"
+    required: false
+    default: "true"
   exit-code:
     description: "Forces the exit-code when errors are reported"
     required: false
@@ -81,7 +89,8 @@ runs:
     - id: run
       shell: bash
       env:
-        SHA: ${{ github.event.pull_request.head.sha }}
+        SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
         CURRENT_BRANCH: ${{ github.head_ref }}
         DIFF_BASE_BRANCH: ${{ fromJSON(inputs.diff) && github.base_ref || '' }}
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -99,4 +108,6 @@ runs:
           "--output=${{ inputs.output }}" \
           "--exit-code=${{ inputs.exit-code }}" \
           "--severity=${{ inputs.severity }}" \
-          "--api-key=${{ inputs.api-key }}"
+          "--api-key=${{ inputs.api-key }}" \
+          "--quiet=${{ inputs.quiet }}" \
+          "--hide-progress-bar=${{ inputs.hide-progress-bar }}"
